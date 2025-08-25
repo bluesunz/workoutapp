@@ -18,6 +18,9 @@
 /* ===== THEME VARIABLES ===== */
 /* Light defaults */
 :root{
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --tab-h: 48px;
   --safe-bottom: env(safe-area-inset-bottom);
   --tab-h: 56px;
   --bg:#f7f8fb;
@@ -84,10 +87,10 @@ body{
 header{
   position:sticky;top:0;z-index:5;
   backdrop-filter:blur(6px);
-  background:var(--tab-bg);
+  background:var(--tab-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   border-bottom:1px solid var(--border);
 }
-header .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;max-width:980px;margin:0 auto;padding:14px 16px;}
+header .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;max-width:980px;margin:0 auto;padding:calc(14px + var(--safe-top)) 16px 14px;}
 h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
 
 .container{max-width:980px;margin:18px auto 80px;padding:0 16px 40px}
@@ -119,13 +122,13 @@ h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
 .table th{color:var(--muted);font-weight:600}
 
 /* Tabs */
-.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--tab-bg);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--tab-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10}
 .tabbtn{padding:10px 6px;text-align:center;color:var(--muted);font-size:12px;border:none;background:transparent;cursor:pointer}
 .tabbtn.active{color:var(--text);font-weight:700}
 
 
 /* --- Safe area for iPhone bottom bar --- */
-main{ padding-bottom: calc(var(--tab-h) + 24px + var(--safe-bottom)); }
+main{ padding-bottom: calc(var(--tab-h) + 6px + var(--safe-bottom)); }
 .tabs{ height: calc(var(--tab-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); box-sizing: content-box; }
 
 /* Sections */

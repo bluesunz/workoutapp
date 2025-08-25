@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>나만의 6주 운동 플래너</title>
 
 <!-- 자동 테마 동기화 -->
@@ -18,6 +18,8 @@
 /* ===== THEME VARIABLES ===== */
 /* Light defaults */
 :root{
+  --safe-bottom: env(safe-area-inset-bottom);
+  --tab-h: 56px;
   --bg:#f7f8fb;
   --surface:#ffffff;
   --text:#0f1115;
@@ -120,6 +122,11 @@ h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
 .tabs{position:fixed;left:0;right:0;bottom:0;background:var(--tab-bg);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10}
 .tabbtn{padding:10px 6px;text-align:center;color:var(--muted);font-size:12px;border:none;background:transparent;cursor:pointer}
 .tabbtn.active{color:var(--text);font-weight:700}
+
+
+/* --- Safe area for iPhone bottom bar --- */
+main{ padding-bottom: calc(var(--tab-h) + 24px + var(--safe-bottom)); }
+.tabs{ height: calc(var(--tab-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); box-sizing: content-box; }
 
 /* Sections */
 main > section{display:none}

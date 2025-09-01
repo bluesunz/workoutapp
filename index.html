@@ -1,152 +1,239 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>나만의 6주 운동 플래너</title>
-<meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#0f1115">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-:root{
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
-  --tab-h: 48px;
-  --bg:#0f1115; --surface:#171a21; --text:#e6e9ef; --muted:#9aa3b2; --border:#232736; --elev:rgba(0,0,0,.35);
-  --accent:#66b2ff; --ok:#7bd88f; --warn:#f6c177; --danger:#ef7d7d; --chip-bg:#11151d; --chip-border:#2a3447; --kbd-bg:#0e121a; --kbd-border:#2a2f3f; --tab-bg:rgba(15,17,21,.9);
-  --pastel-1:linear-gradient(135deg,#1b3045,#23364b); --pastel-2:linear-gradient(135deg,#3f2a29,#4a312b); --pastel-3:linear-gradient(135deg,#1d3b36,#1f423a); --pastel-4:linear-gradient(135deg,#2c2540,#342b4a); --cardText:#e9eef7;
-}
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f7f8fb; --surface:#ffffff; --text:#0f1115; --muted:#5b6472; --border:#dfe3ea; --elev:rgba(0,0,0,.06);
-    --accent:#2563eb; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444; --chip-bg:#eef2f8; --chip-border:#cfd6e3; --kbd-bg:#eef0f6; --kbd-border:#cfd6e3; --tab-bg:rgba(255,255,255,.9);
-    --pastel-1:linear-gradient(135deg,#dfefff,#f2f7ff); --pastel-2:linear-gradient(135deg,#ffe2d8,#ffefdd); --pastel-3:linear-gradient(135deg,#d7f6ed,#f0fff7); --pastel-4:linear-gradient(135deg,#efe6ff,#fff4ff); --cardText:#0e1220;
-  }
-}
-*{box-sizing:border-box} html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Malgun Gothic,Helvetica,Arial,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--tab-bg);border-bottom:1px solid var(--border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-header .wrap{display:flex;gap:12px;align-items:center;justify-content:space-between;max-width:980px;margin:0 auto;padding:calc(14px + var(--safe-top)) 16px 14px}
-h1{font-size:20px;margin:0;font-weight:800;letter-spacing:.2px}
-.container{max-width:980px;margin:18px auto 80px;padding:0 16px 40px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 4px 20px var(--elev)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.small{font-size:12px;color:var(--muted)} .muted{color:var(--muted);font-size:12px}
-.btn{border:0;background:var(--accent);color:#fff;padding:12px 16px;border-radius:999px;font-weight:800;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
-.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--tab-bg);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10;height:calc(var(--tab-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);box-sizing:content-box}
-.tabbtn{padding:10px 6px;text-align:center;color:var(--muted);font-size:12px;border:none;background:transparent;cursor:pointer}
-.tabbtn.active{color:var(--text);font-weight:700}
-main{padding-bottom:calc(var(--tab-h) + 3px + var(--safe-bottom))}
-main>section{display:none} main>section.active{display:block}
-.work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
-.wc{border-radius:18px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-height:140px;color:var(--cardText);box-shadow:0 12px 24px rgba(0,0,0,.25);border:1px solid color-mix(in oklab,var(--border) 80%, transparent)}
-.wc .title{font-size:13px;font-weight:700;opacity:.9} .wc .name{font-size:20px;font-weight:900;margin-top:6px} .wc .meta{font-size:12px;opacity:.9;text-align:right;margin-top:12px}
-.pastel-1{background:var(--pastel-1)} .pastel-2{background:var(--pastel-2)} .pastel-3{background:var(--pastel-3)} .pastel-4{background:var(--pastel-4)}
-@media (display-mode: standalone){ :root{--tab-h:42px} main{padding-bottom:calc(var(--tab-h) + 0px + var(--safe-bottom))} .tabs{height:calc(var(--tab-h) + max(var(--safe-bottom),2px));padding-bottom:max(var(--safe-bottom),2px)} }
-
-/* ==== Sidebar Drawer (replaces bottom tabs) ==== */
-:root{
-  --safe-left: env(safe-area-inset-left);
-  --safe-right: env(safe-area-inset-right);
-}
-.icon-btn{background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);cursor:pointer}
-.icon-btn:active{transform:scale(0.98)}
-.drawer{position:fixed;inset:0 auto 0 0; width:min(86vw, 300px); background:var(--surface); border-right:1px solid var(--border);
-        transform:translateX(-100%); transition:transform .22s ease; z-index:120; display:flex; flex-direction:column; padding-top:calc(10px + var(--safe-top));}
-.drawer.open{transform:translateX(0)}
-.drawer-header{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--border);}
-.drawer-nav{display:flex; flex-direction:column; padding:12px;}
-.drawer-link{appearance:none; text-align:left; background:transparent; color:var(--text); border:1px solid var(--border);
-            padding:12px 14px; margin-bottom:10px; border-radius:12px; font-weight:700; cursor:pointer}
-.drawer-link:active{transform:scale(0.99)}
-.overlay{position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter:saturate(120%) blur(2px); z-index:110}
-/* Body bottom padding no longer needs tab height; keep only small safe-bottom */
-main{ padding-bottom: calc(8px + var(--safe-bottom)); }
-
-</style>
-<script>
-function applyThemeColor(){const dark=window.matchMedia('(prefers-color-scheme: dark)').matches;const t=document.querySelector('meta[name="theme-color"]');const a=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');if(t)t.setAttribute('content',dark?'#0f1115':'#f7f8fb');if(a)a.setAttribute('content',dark?'black-translucent':'default');}
-applyThemeColor(); window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyThemeColor);
-if(window.navigator.standalone===true){document.documentElement.classList.add('ios-standalone');}
-</script>
-</head>
-<body>
-<header><div class="wrap"><h1 id="titleBar">Workouts</h1>
-      <button id="menuBtn" aria-label="메뉴" class="icon-btn" style="margin-left:8px">☰</button><div class="row" style="max-width:520px"><button class="btn ghost" id="exportBtn">내보내기</button><input id="importInput" type="file" accept="application/json" style="display:none"><button class="btn ghost" id="importBtn">가져오기</button><button class="btn" style="background:#f6c177;color:#1a1208" id="resetBtn">초기화</button></div></div></header>
-<main class="container">
-<section id="tab-workouts" class="active"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">Workouts</h2><div class="small">시스템 테마에 맞춰 자동 전환</div></div><div class="work-grid" id="workGrid"></div><div style="text-align:center;margin-top:18px"><button class="btn ghost" id="toPlanBtn">ALL WORKOUTS</button></div></section>
-<section id="tab-plan"><div class="card"><h2 style="margin-top:0">설정</h2><div class="row"><div style="flex:1 1 100%"><label class="small">종목</label><div id="exerciseChips"></div></div><div><label class="small">목표</label><input type="number" id="goal" min="1" value="50"></div><div><label class="small">최대</label><input type="number" id="maxRepTest" min="0" value="15"></div></div></div></section>
-<section id="tab-stats"><div class="card"><h2 style="margin-top:0">기록</h2><table class="table" id="logTable"><thead><tr><th>날짜</th><th>종목</th><th>세트</th><th>목표</th><th>실행</th><th style="text-align:right">완료</th></tr></thead><tbody></tbody></table></div></section>
-<section id="tab-settings"><div class="card"><h2 style="margin-top:0">설정</h2><div class="row"><button class="btn ghost" id="exportBtn2">데이터 내보내기</button><button class="btn ghost" id="importBtn2">데이터 가져오기</button></div><input id="importInput2" type="file" accept="application/json" style="display:none"></div></section>
-</main>
-
-<div id="overlay" class="overlay" hidden></div>
-<aside id="drawer" class="drawer" aria-hidden="true">
-  <div class="drawer-header">
-    <strong>메뉴</strong>
-    <button id="closeDrawer" class="icon-btn" aria-label="닫기">✕</button>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vibe 6W — Pushup Plan (Working)</title><style>
+:root{--bg:#0b0c10;--fg:#eaeef5;--muted:#98a2b3;--card:#12141a;--surface:#0f1217;--sep:#1f2430;--accent:#3c6df0;--shadow:0 1px 2px rgba(0,0,0,.35);--tile1:#1d2540;--tile2:#153226;--tile3:#3a2a12}
+@media(prefers-color-scheme:light){:root{--bg:#f7f8fb;--fg:#0b0c10;--muted:#667085;--card:#ffffff;--surface:#f4f6f8;--sep:#e4e7ec;--accent:#1e66ff;--shadow:0 1px 3px rgba(0,0,0,.06);--tile1:#eaf2ff;--tile2:#eafaf2;--tile3:#fff4db}}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+.hidden{display:none!important}
+header{position:sticky;top:0;padding:14px 16px;background:rgba(0,0,0,.06);backdrop-filter:blur(8px);border-bottom:1px solid var(--sep);z-index:20;display:flex;align-items:center;justify-content:space-between}
+.h1{margin:0;font-weight:800;font-size:20px}
+main{max-width:760px;margin:0 auto;padding:16px}
+.grid{display:grid;gap:12px}
+.card{background:var(--card);border:1px solid var(--sep);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.workout{display:flex;align-items:center;justify-content:space-between;min-height:64px;border-radius:18px;cursor:pointer}
+.workout .name{font-weight:700}.workout .sub{font-size:12px;color:var(--muted);margin-left:auto}
+.workout[data-go=pushup]{background:var(--tile1)}.workout[data-go=squat]{background:var(--tile2)}.workout[data-go=plank]{background:var(--tile3)}
+.workout::after{content:'›';opacity:.6}
+.setrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--sep);border-radius:14px;padding:10px;margin-top:6px}
+.setnum{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--sep);background:var(--card);font-weight:700}
+.timer{display:grid;gap:6px;place-items:center;border:1px solid var(--sep);border-radius:14px;padding:12px;background:var(--surface)}
+#rest{font-weight:800;font-size:32px}.small{font-size:12px;color:var(--muted)}
+.btn{appearance:none;border:1px solid var(--sep);background:var(--card);color:var(--fg);border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+.btn.flat{border-color:var(--accent);color:var(--accent);background:transparent}.btn.ghost{background:transparent;border-color:var(--sep)}
+.page-label{margin-top:16px;text-align:center;font-size:11px;color:var(--muted)}
+/* Sidebar overlay */
+#sidebar{position:fixed;top:0;left:0;height:100%;width:240px;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);padding:20px;transform:translateX(-100%);transition:transform .25s ease;z-index:100}
+#sidebar.show{transform:translateX(0)}
+#sidebar h2{margin-top:0;color:var(--fg)}
+#sidebar ul{list-style:none;padding:0;margin:20px 0}
+#sidebar li{margin:10px 0}
+#sidebar a{color:var(--fg);text-decoration:none;font-weight:600;cursor:pointer}
+#menuBtn{margin-right:10px}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(2px);z-index:90}
+.scrim.hidden{display:none}
+/* Modal */
+.modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);z-index:120}
+.modal.hidden{display:none}
+.dialog{width:min(92vw,440px);background:var(--card);border:1px solid var(--sep);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+.dialog .title{font-weight:700;margin-bottom:8px}
+.dialog .row{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+</style></head><body>
+<header>
+  <button id="menuBtn" class="btn ghost">☰</button>
+  <h1 class="h1" id="title">Workout Selection</h1>
+  <button id="backTop" class="btn ghost hidden">←</button>
+</header>
+<div id="sidebar">
+  <h2>Menu</h2>
+  <ul>
+    <li><a href="#" data-nav="home">Home</a></li>
+    <li><a href="#" data-nav="pushup">Push-ups</a></li>
+    <li><a href="#" data-nav="squat">Squats</a></li>
+    <li><a href="#" data-nav="plank">Plank</a></li>
+  </ul>
+</div>
+<div id="scrim" class="scrim hidden" aria-hidden="true"></div>
+<main>
+<section id="home">
+  <div class="grid">
+    <div class="card workout" data-go="pushup"><div class="name">Push-ups</div><div class="sub">Sets · Reps</div></div>
+    <div class="card workout" data-go="squat"><div class="name">Squats</div><div class="sub">Sets · Reps</div></div>
+    <div class="card workout" data-go="plank"><div class="name">Plank</div><div class="sub">Seconds · Timer</div></div>
   </div>
-  <nav class="drawer-nav">
-    <button class="drawer-link" data-tab="workouts">Workouts</button>
-    <button class="drawer-link" data-tab="plan">Plan</button>
-    <button class="drawer-link" data-tab="stats">Stats</button>
-    <button class="drawer-link" data-tab="settings">Settings</button>
-  </nav>
-</aside>
-
+  <div class="page-label">Home</div>
+</section>
+<section id="session" class="hidden">
+  <div class="card"><div class="small" id="wname"></div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+      <span class="small" id="progText">Week 1 · Day 1</span>
+      <button class="btn flat" id="next">Finish Session</button>
+    </div>
+  </div>
+  <div class="card"><div class="small" style="margin-bottom:6px">Today's Sets</div><div id="sets"></div></div>
+  <div class="card"><div class="small" style="margin-bottom:6px">Rest Timer</div>
+    <div class="timer"><div id="rest">01:30</div><button id="toggle" class="btn">Start</button></div>
+  </div>
+  <div class="page-label">Session</div>
+</section>
+</main>
+<!-- MAX modal -->
+<div id="maxModal" class="modal hidden"><div class="dialog"><div class="title" id="maxPrompt">Enter your maximum</div>
+  <input id="maxInput" type="number" min="1" placeholder="Enter a number" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--sep);background:var(--surface);color:var(--fg)">
+  <div class="row"><button class="btn ghost" id="maxCancel">Cancel</button><button class="btn flat" id="maxSave">Save</button></div>
+</div></div>
 <script>
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js"));}
-const $=(s,el=document)=>el.querySelector(s); const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
-const todayKey=()=>new Date().toISOString().slice(0,10);
-const defaultState={exercise:'푸시업',goal:50,maxRepTest:15,daysPerWeek:3,setsPerDay:5,restSec:60,startDate:todayKey(),plan:[],logs:[]};
-let state=JSON.parse(localStorage.getItem('sixweek.state')||'null')||defaultState;
-function save(){localStorage.setItem('sixweek.state',JSON.stringify(state));}
-const EXERCISES=['푸시업','윗몸일으키기','스쿼트','풀업','딥스'];
-const chips=$('#exerciseChips'),workGrid=$('#workGrid'),logTableBody=$('#logTable tbody');
-function init(){ if(chips) chips.innerHTML=EXERCISES.map(x=>`<button class="btn ghost chip" data-x="${x}" style="padding:6px 10px">${x}</button>`).join(''); renderWorkouts(); renderLogs(); }
-init();
-function renderWorkouts(){ if(!workGrid) return; const cards=[]; let info='계획 필요',sub='목표 설정 후 계획 생성'; cards.push({cls:'pastel-1',title:info,name:state.exercise,meta:sub}); EXERCISES.filter(x=>x!==state.exercise).slice(0,3).forEach((ex,i)=>cards.push({cls:['pastel-2','pastel-3','pastel-4'][i%3],title:'다른 종목',name:ex,meta:'탭하여 현재 종목으로 전환'})); workGrid.innerHTML=cards.map(c=>`<div class="wc ${c.cls}" data-ex="${c.name}"><div><div class="title">${c.title}</div><div class="name">${c.name}</div></div><div class="meta">${c.meta}</div></div>`).join(''); $$('.wc',workGrid).forEach(el=>el.addEventListener('click',()=>{const ex=el.dataset.ex; if(ex&&ex!==state.exercise){state.exercise=ex;save();renderWorkouts();}})); }
-function renderLogs(){ if(!logTableBody) return; logTableBody.innerHTML=''; }
-document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
-const sections={workouts:document.getElementById('tab-workouts'),plan:document.getElementById('tab-plan'),stats:document.getElementById('tab-stats'),settings:document.getElementById('tab-settings')};
-function switchTab(name){ Object.entries(sections).forEach(([k,el])=>el?.classList.toggle('active',k===name)); document.querySelectorAll('.tabbtn').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===name)); window.scrollTo({top:0,behavior:'smooth'}); }
+// ===== App Script (stable working build) =====
+const $=q=>document.querySelector(q), $$=q=>Array.from(document.querySelectorAll(q));
 
-// === Drawer toggle ===
-const menuBtn = document.getElementById('menuBtn');
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('overlay');
-const closeDrawer = document.getElementById('closeDrawer');
+// --- State ---
+const SKEY='vibe6w_stable_v1';
+const D=()=>({rest:90,workout:'pushup',sets:[],max:{},progress:{pushup:{w:1,d:1},squat:{w:1,d:1},plank:{w:1,d:1}}});
+let st=JSON.parse(localStorage.getItem(SKEY)||'null')||D();
+const save=()=>localStorage.setItem(SKEY,JSON.stringify(st));
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+const pad2=n=>String(n).padStart(2,'0');
+const fmt=s=>{s=Math.max(0,s|0);return pad2((s/60|0))+':'+pad2(s%60|0)};
 
-function openDrawer(){
-  if (!drawer) return;
-  drawer.classList.add('open');
-  if (overlay){ overlay.hidden = false; }
-  if (drawer) drawer.setAttribute('aria-hidden','false');
+// --- Views ---
+function view(v){
+  $('#home').classList.toggle('hidden',v!=='home');
+  $('#session').classList.toggle('hidden',v!=='session');
+  $('#title').textContent=(v==='home'?'Workout Selection':(st.workoutName||'Session'));
+  $('#backTop').classList.toggle('hidden',v!=='session');
 }
-function hideDrawer(){
-  if (!drawer) return;
-  drawer.classList.remove('open');
-  if (overlay){ overlay.hidden = true; }
-  if (drawer) drawer.setAttribute('aria-hidden','true');
-}
-if (menuBtn) menuBtn.addEventListener('click', openDrawer);
-if (closeDrawer) closeDrawer.addEventListener('click', hideDrawer);
-if (overlay) overlay.addEventListener('click', hideDrawer);
-window.addEventListener('keydown', (e)=>{ if (e.key==='Escape') hideDrawer(); });
+$('#backTop').addEventListener('click',()=>view('home'));
 
-// Drawer navigation -> switchTab
-document.querySelectorAll('.drawer-link').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const t = btn.getAttribute('data-tab');
-    if (typeof switchTab === 'function') switchTab(t);
-    hideDrawer();
+// --- Progress helpers ---
+function getProg(ex){st.progress[ex]=st.progress[ex]||{w:1,d:1};return st.progress[ex];}
+function incProg(ex){const p=getProg(ex); p.d++; if(p.d>3){p.d=1; p.w=clamp(p.w+1,1,6);} save();}
+
+// --- Rest per week/day ---
+const REST_BY_WEEK_DAY={1:[60,60,60],2:[60,90,120],3:[60,90,120],4:[60,90,120],5:[60,45,45],6:[60,45,45]};
+
+// --- Push-up exact plan (from your images) ---
+const PUSHUP_PLAN={
+  1:{1:[{min:0,max:4,sets:[2,3,2,2,3]},{min:5,max:10,sets:[6,6,4,4,5]},{min:11,max:20,sets:[10,12,7,7,9]}],
+     2:[{min:0,max:4,sets:[3,4,2,2,4]},{min:5,max:10,sets:[10,10,8,8,7]},{min:11,max:20,sets:[10,12,8,8,12]}],
+     3:[{min:0,max:4,sets:[4,5,4,4,5]},{min:5,max:10,sets:[8,10,7,7,10]},{min:11,max:20,sets:[11,15,9,9,13]}]},
+  2:{1:[{min:0,max:5,sets:[4,6,4,4,6]},{min:6,max:10,sets:[9,11,8,8,11]},{min:11,max:20,sets:[14,14,10,10,15]}],
+     2:[{min:0,max:5,sets:[5,6,4,4,7]},{min:6,max:10,sets:[10,12,8,9,13]},{min:11,max:20,sets:[14,16,12,12,17]}],
+     3:[{min:0,max:5,sets:[5,7,5,5,8]},{min:6,max:10,sets:[12,13,10,10,15]},{min:11,max:20,sets:[16,17,14,14,20]}]},
+  3:{1:[{min:16,max:20,sets:[10,12,7,7,9]},{min:21,max:25,sets:[12,17,13,13,17]},{min:26,max:999,sets:[14,18,14,14,20]}],
+     2:[{min:16,max:20,sets:[10,10,14,8,12]},{min:21,max:25,sets:[14,16,14,14,19]},{min:26,max:999,sets:[20,22,15,15,25]}],
+     3:[{min:16,max:20,sets:[11,15,11,9,13]},{min:21,max:25,sets:[16,20,16,15,21]},{min:26,max:999,sets:[22,24,20,20,28]}]},
+  4:{1:[{min:16,max:20,sets:[12,14,16,10,16]},{min:21,max:25,sets:[18,22,18,16,25]},{min:26,max:999,sets:[21,25,21,21,32]}],
+     2:[{min:16,max:20,sets:[14,16,12,12,18]},{min:21,max:25,sets:[20,20,20,20,28]},{min:26,max:999,sets:[25,25,29,29,36]}],
+     3:[{min:16,max:20,sets:[16,23,13,13,20]},{min:21,max:25,sets:[23,28,23,23,33]},{min:26,max:999,sets:[29,33,29,29,40]}]},
+  5:{1:[{min:31,max:35,sets:[17,19,15,15,20]},{min:36,max:40,sets:[28,35,22,25,35]},{min:41,max:999,sets:[36,40,24,30,40]}],
+     2:[{min:31,max:35,sets:[10,10,13,10,10,10,9,25]},{min:36,max:40,sets:[18,18,20,20,14,14,9,40]},{min:41,max:999,sets:[19,19,22,22,18,22,22,45]}],
+     3:[{min:31,max:35,sets:[13,13,15,13,12,12,10,30]},{min:36,max:40,sets:[18,20,20,20,17,20,20,45]},{min:41,max:999,sets:[20,22,24,24,20,26,22,50]}]},
+  6:{1:[{min:46,max:50,sets:[25,30,20,15,40]},{min:51,max:60,sets:[40,50,25,25,50]},{min:61,max:999,sets:[45,55,35,30,55]}],
+     2:[{min:46,max:50,sets:[14,18,14,14,15,14,10,10,44]},{min:51,max:60,sets:[20,21,21,23,23,20,20,10,53]},{min:61,max:999,sets:[22,22,24,30,24,24,22,18,58]}],
+     3:[{min:46,max:50,sets:[13,13,17,15,17,16,15,14,50]},{min:51,max:60,sets:[22,26,30,25,26,26,22,22,60]},{min:61,max:999,sets:[26,33,33,30,33,26,26,22,60]}]}
+};
+const matchBucket=(bs,max)=>bs.find(b=>max>=b.min&&max<=b.max);
+const pushupFromPlan=(w,d,max)=>{const wk=PUSHUP_PLAN[w]; if(!wk) return null; const bs=wk[d]; if(!bs) return null; const b=matchBucket(bs,max); return b?b.sets.slice():null;};
+
+// --- Fallback generator (squat/plank) ---
+function fiveSetsFrom(maxVal, week, day, type){
+  const base=type==='plank'?0.5:0.55;
+  const rate=base+0.04*(week-1)+0.02*(day-1);
+  const first=Math.max(type==='plank'?10:1,Math.round(maxVal*rate));
+  const step=type==='plank'?5:Math.max(1,Math.round(maxVal*0.05));
+  const a=[first,first+step,first+2*step,first+step,first];
+  return a.map(v=>type==='plank'?Math.min(Math.round(maxVal*1.2),v):Math.min(Math.round(maxVal*0.9),v));
+}
+
+// --- Routine dispatcher ---
+function genRoutine(ex){
+  if(ex==='pushup'){
+    const p=getProg(ex);
+    const exact=pushupFromPlan(p.w,p.d, st.max.pushup||0);
+    if(exact) return exact;
+  }
+  const p=getProg(ex); const max=st.max[ex]||(ex==='plank'?30:10);
+  return fiveSetsFrom(max,p.w,p.d, ex==='plank'?'plank':'reps');
+}
+
+// --- MAX modal ---
+let pendingEx=null;
+function openMaxModal(ex){
+  pendingEx=ex;
+  const isPlank=ex==='plank';
+  $('#maxPrompt').textContent=isPlank?'Enter max plank hold (sec)':(ex==='pushup'?'Enter max push-ups':'Enter max squats');
+  $('#maxInput').value=isPlank?45:(ex==='pushup'?20:30);
+  $('#maxModal').classList.remove('hidden');
+  setTimeout(()=>$('#maxInput').focus(),0);
+}
+function closeMaxModal(){ $('#maxModal').classList.add('hidden'); pendingEx=null; }
+function saveMax(){
+  const v=Number($('#maxInput').value);
+  if(!Number.isFinite(v)||v<=0){ alert('Please enter a valid number.'); return; }
+  st.max[pendingEx]=Math.round(v);
+  st.progress[pendingEx]={w:1,d:1};
+  save(); closeMaxModal();
+  setupSession(pendingEx); view('session');
+}
+$('#maxSave').addEventListener('click',saveMax);
+$('#maxCancel').addEventListener('click',closeMaxModal);
+$('#maxInput').addEventListener('keydown',e=>{if(e.key==='Enter') saveMax(); if(e.key==='Escape') closeMaxModal();});
+
+// --- Rendering ---
+function setDefaults(){
+  const w=st.workout; st.workoutName=w==='pushup'?'Push-ups':w==='squat'?'Squats':'Plank';
+  $('#wname').textContent=st.workoutName;
+  const p=getProg(w); $('#progText').textContent=`Week ${p.w} · Day ${p.d}`;
+}
+function renderSets(){
+  const box=$('#sets'); box.innerHTML='';
+  st.sets.forEach((v,i)=>{
+    const r=document.createElement('div'); r.className='setrow';
+    r.innerHTML=`<div class="setnum">${i+1}</div>
+                 <div>${st.workout==='plank'?`<b>${v}s</b> Plank <span class="small">Left:<b id="rem-${i}">${fmt(v)}</b></span>`:`<b>${v} reps</b> ${st.workoutName}`}</div>
+                 <div><input type="checkbox"></div>`;
+    box.appendChild(r);
   });
-});
+}
+function setupSession(forceEx){
+  if(forceEx) st.workout=forceEx;
+  setDefaults();
+  const p=getProg(st.workout);
+  const restMap=REST_BY_WEEK_DAY[p.w]||[90,90,90];
+  st.rest=restMap[p.d-1]||90;
+  st.sets=genRoutine(st.workout);
+  renderSets();
+  $('#rest').textContent=fmt(st.rest);
+}
 
+// --- Start workout from Home ---
+function startWorkout(ex){ if(st.max[ex]==null){ openMaxModal(ex); return; } setupSession(ex); view('session'); }
+$$('.workout').forEach(c=>c.addEventListener('click',()=>startWorkout(c.dataset.go)));
+
+// --- Session actions ---
+function advanceSession(){ incProg(st.workout); setupSession(); save(); }
+$('#next').addEventListener('click',advanceSession);
+
+// --- Timer ---
+let restTimer=null, running=false, remain=0;
+function syncRest(){ $('#rest').textContent=fmt(remain); }
+function startRest(){ if(running) return; remain=st.rest|0; syncRest(); running=true; restTimer=setInterval(()=>{remain=Math.max(0,remain-1); syncRest(); if(remain<=0){ stopRest(); }},1000); $('#toggle').textContent='Stop'; }
+function stopRest(){ if(!running) return; running=false; clearInterval(restTimer); $('#toggle').textContent='Start'; }
+$('#toggle').addEventListener('click',()=> running?stopRest():startRest());
+
+// --- Sidebar overlay + scrim ---
+const sidebarEl=$('#sidebar'), scrimEl=$('#scrim');
+const isOpen=()=>sidebarEl.classList.contains('show');
+const openSidebar=()=>{sidebarEl.classList.add('show'); scrimEl.classList.remove('hidden');};
+const closeSidebar=()=>{sidebarEl.classList.remove('show'); scrimEl.classList.add('hidden');};
+$('#menuBtn').addEventListener('click',()=> isOpen()? closeSidebar(): openSidebar());
+scrimEl.addEventListener('click',closeSidebar);
+$$('#sidebar a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const nav=a.dataset.nav; if(nav==='home'){view('home');} else if(['pushup','squat','plank'].includes(nav)){startWorkout(nav);} closeSidebar();}));
+
+// --- Swipe gestures (open from left edge, close with left-swipe) ---
+let tsX=0, tsY=0, swiping=false, edgeOpen=false;
+window.addEventListener('touchstart',e=>{const t=e.touches[0]; tsX=t.clientX; tsY=t.clientY; swiping=false; edgeOpen=!isOpen() && tsX<24; if(isOpen()||edgeOpen) swiping=true;},{passive:true});
+window.addEventListener('touchmove',e=>{if(!swiping) return; const t=e.touches[0]; const dx=t.clientX-tsX; const dy=Math.abs(t.clientY-tsY); if(dy>28){ swiping=false; return; } if(edgeOpen && dx>40){ openSidebar(); swiping=false; } if(isOpen() && dx<-40){ closeSidebar(); swiping=false; }},{passive:true});
+window.addEventListener('touchend',()=>{swiping=false; edgeOpen=false;},{passive:true});
+
+// --- Init ---
+view('home');
 </script>
-</body>
-</html>
+</body></html>
